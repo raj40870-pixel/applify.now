@@ -1298,7 +1298,7 @@ export default function App() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-24 pb-12 overflow-hidden">
+      <section className="relative pt-48 pb-32 overflow-hidden">
         {/* Background Gradients */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10">
           <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-cyan-500/10 blur-[120px] rounded-full" />
@@ -1311,31 +1311,31 @@ export default function App() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/5 text-cyan-400 text-xs font-bold mb-4 uppercase tracking-widest">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/5 text-cyan-400 text-xs font-bold mb-8 uppercase tracking-widest">
               <Zap size={14} fill="currentColor" /> Vercel for Mobile Apps
             </div>
             
-            <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-[1.1] mb-4">
-              Turn your website into a{' '}
+            <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-[1.1] mb-8">
+              Turn your website into a <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600">mobile app</span> in seconds.
             </h1>
             
-            <p className="text-lg text-slate-400 max-w-2xl mx-auto mb-6 leading-relaxed">
+            <p className="text-xl text-slate-400 max-w-2xl mx-auto mb-12 leading-relaxed">
               The slickest, fastest way to convert any web application into a native iOS and Android experience. No coding, no complicated setup. Just drop your URL.
             </p>
             
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
               <Button 
                 size="lg" 
                 onClick={goToConverter} 
-                className="h-12 px-8 text-base bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-xl shadow-[0_0_30px_rgba(6,182,212,0.4)] gap-2 group"
+                className="h-16 px-10 text-lg bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-xl shadow-[0_0_30px_rgba(6,182,212,0.4)] gap-2 group"
               >
-                Start Converting <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                Start Converting <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
               </Button>
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="h-12 px-8 text-base rounded-xl border-white/10 hover:bg-white/5 text-white font-bold"
+                className="h-16 px-10 text-lg rounded-xl border-white/10 hover:bg-white/5 text-white font-bold"
                 onClick={() => setView('dashboard')}
               >
                 View Dashboard
@@ -1346,18 +1346,19 @@ export default function App() {
       </section>
 
       {/* Features Grid */}
-      <section className="py-12 bg-[#050505]">
+      <section className="py-32 bg-[#050505]">
         <div className="container mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto mb-10">
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-4">
-              Consumer-grade polish. Developer-grade power.
+          <div className="text-center max-w-3xl mx-auto mb-24">
+            <h2 className="text-4xl md:text-6xl font-black tracking-tight mb-8">
+              Consumer-grade polish. <br />
+              Developer-grade power.
             </h2>
-            <p className="text-base text-slate-400">
+            <p className="text-lg text-slate-400">
               Everything you need to deliver a premium native experience without touching Swift or Kotlin.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
                 icon: <Globe className="text-cyan-400" />,
@@ -1392,13 +1393,13 @@ export default function App() {
             ].map((feature, i) => (
               <div 
                 key={i}
-                className="p-6 bg-[#0a0a0a] border border-white/5 rounded-2xl hover:border-cyan-500/30 transition-all group"
+                className="p-10 bg-[#0a0a0a] border border-white/5 rounded-3xl hover:border-cyan-500/30 transition-all group"
               >
-                <div className="w-10 h-10 bg-cyan-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <div className="w-14 h-14 bg-cyan-500/10 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
                   {feature.icon}
                 </div>
-                <h3 className="text-lg font-bold mb-2">{feature.title}</h3>
-                <p className="text-slate-400 text-sm leading-relaxed">{feature.desc}</p>
+                <h3 className="text-2xl font-bold mb-4">{feature.title}</h3>
+                <p className="text-slate-400 leading-relaxed">{feature.desc}</p>
               </div>
             ))}
           </div>
@@ -1406,13 +1407,13 @@ export default function App() {
       </section>
 
       {/* How it Works */}
-      <section className="py-12 relative">
+      <section className="py-32 relative">
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl md:text-4xl font-black text-center mb-10">How it works</h2>
+          <h2 className="text-4xl md:text-5xl font-black text-center mb-24">How it works</h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 relative">
             {/* Connecting Line */}
-            <div className="absolute top-8 left-0 w-full h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent hidden md:block" />
+            <div className="absolute top-12 left-0 w-full h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent hidden md:block" />
             
             {[
               { step: "01", title: "Enter URL", desc: "Drop your website link into our converter tool." },
@@ -1421,10 +1422,10 @@ export default function App() {
               { step: "04", title: "Download", desc: "Grab your mobile-ready packages from the dashboard." }
             ].map((item, i) => (
               <div key={i} className="text-center relative z-10">
-                <div className="w-16 h-16 bg-black border border-cyan-500/50 rounded-full flex items-center justify-center mx-auto mb-4 shadow-[0_0_20px_rgba(6,182,212,0.2)]">
-                  <span className="text-lg font-black text-cyan-400">{item.step}</span>
+                <div className="w-24 h-24 bg-black border border-cyan-500/50 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(6,182,212,0.2)]">
+                  <span className="text-2xl font-black text-cyan-400">{item.step}</span>
                 </div>
-                <h3 className="text-base font-bold mb-2">{item.title}</h3>
+                <h3 className="text-xl font-bold mb-4">{item.title}</h3>
                 <p className="text-slate-400 text-sm leading-relaxed">{item.desc}</p>
               </div>
             ))}
@@ -1433,14 +1434,14 @@ export default function App() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-12 bg-[#050505]">
+      <section className="py-32 bg-[#050505]">
         <div className="container mx-auto px-6">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-black mb-3">Trusted by modern teams</h2>
-            <p className="text-slate-400 text-sm">See what other developers are saying about AppifyNow.</p>
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-5xl font-black mb-6">Trusted by modern teams</h2>
+            <p className="text-slate-400">See what other developers are saying about AppifyNow.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
                 name: "Sarah Jenkins",
@@ -1458,21 +1459,21 @@ export default function App() {
                 quote: "AppifyNow feels like magic. It just works, every single time. A must-have for indie hackers."
               }
             ].map((review, i) => (
-              <div key={i} className="p-6 bg-[#0a0a0a] border border-white/5 rounded-2xl relative">
-                <div className="flex gap-1 mb-3">
+              <div key={i} className="p-10 bg-[#0a0a0a] border border-white/5 rounded-3xl relative">
+                <div className="flex gap-1 mb-6">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={14} className="text-cyan-400 fill-cyan-400" />
+                    <Star key={i} size={18} className="text-cyan-400 fill-cyan-400" />
                   ))}
                 </div>
-                <p className="text-base text-white mb-4 leading-relaxed font-medium italic">
+                <p className="text-lg text-white mb-8 leading-relaxed font-medium italic">
                   "{review.quote}"
                 </p>
                 <div>
-                  <p className="font-bold text-white text-sm">{review.name}</p>
-                  <p className="text-xs text-slate-500">{review.role}</p>
+                  <p className="font-bold text-white">{review.name}</p>
+                  <p className="text-sm text-slate-500">{review.role}</p>
                 </div>
-                <div className="absolute top-6 right-6 text-slate-800">
-                  <Copy size={28} />
+                <div className="absolute top-10 right-10 text-slate-800">
+                  <Copy size={40} />
                 </div>
               </div>
             ))}
@@ -1481,22 +1482,22 @@ export default function App() {
       </section>
 
       {/* Pricing */}
-      <section className="py-12">
+      <section className="py-32">
         <div className="container mx-auto px-6">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-black mb-3">Simple, transparent pricing</h2>
-            <p className="text-slate-400 text-sm">Start with a 30-day free trial, upgrade to Pro for premium features.</p>
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-5xl font-black mb-6">Simple, transparent pricing</h2>
+            <p className="text-slate-400">Start with a 30-day free trial, upgrade to Pro for premium features.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {/* Free Trial Plan */}
-            <div className="p-6 bg-[#0a0a0a] border-2 border-cyan-500/60 rounded-2xl flex flex-col hover:border-cyan-400 transition-all group shadow-[0_0_30px_rgba(6,182,212,0.1)]">
-              <h3 className="text-xl font-black mb-1 text-cyan-400">Free Trial</h3>
-              <div className="flex items-baseline gap-1 mb-4">
-                <span className="text-3xl font-black">$0</span>
-                <span className="text-slate-500 text-sm">/30 days</span>
+            <div className="p-10 bg-[#0a0a0a] border-2 border-cyan-500/60 rounded-[2.5rem] flex flex-col hover:border-cyan-400 transition-all group shadow-[0_0_40px_rgba(6,182,212,0.1)]">
+              <h3 className="text-2xl font-black mb-2 text-cyan-400">Free Trial</h3>
+              <div className="flex items-baseline gap-1 mb-8">
+                <span className="text-4xl font-black">$0</span>
+                <span className="text-slate-500">/30 days</span>
               </div>
-              <ul className="space-y-2 mb-6 flex-1">
+              <ul className="space-y-4 mb-12 flex-1">
                 <li className="flex items-center gap-3 text-slate-300 text-sm">
                   <Check size={14} className="text-cyan-400" />
                   Unlimited App Conversions
@@ -1512,23 +1513,23 @@ export default function App() {
               </ul>
               <Button 
                 onClick={goToConverter}
-                className="h-10 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold shadow-[0_0_20px_rgba(6,182,212,0.3)] text-sm"
+                className="h-12 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold shadow-[0_0_20px_rgba(6,182,212,0.3)]"
               >
                 30 Days Free Trial
               </Button>
             </div>
 
             {/* Monthly Plan */}
-            <div className="p-6 bg-[#0a0a0a] border-2 border-cyan-500/60 rounded-2xl flex flex-col relative shadow-[0_0_30px_rgba(6,182,212,0.1)] group hover:border-cyan-400 transition-all">
-              <div className="absolute -top-3 right-8 bg-cyan-500 text-black text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest">
+            <div className="p-10 bg-[#0a0a0a] border-2 border-cyan-500/60 rounded-[2.5rem] flex flex-col relative shadow-[0_0_40px_rgba(6,182,212,0.1)] group hover:border-cyan-400 transition-all">
+              <div className="absolute -top-4 right-10 bg-cyan-500 text-black text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest">
                 Most Popular
               </div>
-              <h3 className="text-xl font-black mb-1 text-cyan-400">Monthly Pro</h3>
-              <div className="flex items-baseline gap-1 mb-4">
-                <span className="text-3xl font-black">₹199</span>
-                <span className="text-slate-500 text-sm">/1 month</span>
+              <h3 className="text-2xl font-black mb-2 text-cyan-400">Monthly Pro</h3>
+              <div className="flex items-baseline gap-1 mb-8">
+                <span className="text-4xl font-black">₹199</span>
+                <span className="text-slate-500">/1 month</span>
               </div>
-              <ul className="space-y-2 mb-6 flex-1">
+              <ul className="space-y-4 mb-12 flex-1">
                 <li className="flex items-center gap-3 text-slate-300 text-sm">
                   <Check size={14} className="text-cyan-400" />
                   15 App Conversions
@@ -1544,20 +1545,20 @@ export default function App() {
               </ul>
               <Button 
                 onClick={() => handleUpgradeClick('monthly')}
-                className="h-10 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold shadow-[0_0_20px_rgba(6,182,212,0.3)] text-sm"
+                className="h-12 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold shadow-[0_0_20px_rgba(6,182,212,0.3)]"
               >
                 Upgrade to Pro
               </Button>
             </div>
 
             {/* Extended Plan */}
-            <div className="p-6 bg-[#0a0a0a] border-2 border-cyan-500/60 rounded-2xl flex flex-col hover:border-cyan-400 transition-all group shadow-[0_0_30px_rgba(6,182,212,0.1)]">
-              <h3 className="text-xl font-black mb-1 text-cyan-400">Extended Pro</h3>
-              <div className="flex items-baseline gap-1 mb-4">
-                <span className="text-3xl font-black">₹299</span>
-                <span className="text-slate-500 text-sm">/2 months</span>
+            <div className="p-10 bg-[#0a0a0a] border-2 border-cyan-500/60 rounded-[2.5rem] flex flex-col hover:border-cyan-400 transition-all group shadow-[0_0_40px_rgba(6,182,212,0.1)]">
+              <h3 className="text-2xl font-black mb-2 text-cyan-400">Extended Pro</h3>
+              <div className="flex items-baseline gap-1 mb-8">
+                <span className="text-4xl font-black">₹299</span>
+                <span className="text-slate-500">/2 months</span>
               </div>
-              <ul className="space-y-2 mb-6 flex-1">
+              <ul className="space-y-4 mb-12 flex-1">
                 <li className="flex items-center gap-3 text-slate-300 text-sm">
                   <Check size={14} className="text-cyan-400" />
                   25 App Conversions
@@ -1573,7 +1574,7 @@ export default function App() {
               </ul>
               <Button 
                 onClick={() => handleUpgradeClick('extended')}
-                className="h-10 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold shadow-[0_0_20px_rgba(6,182,212,0.3)] text-sm"
+                className="h-12 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold shadow-[0_0_20px_rgba(6,182,212,0.3)]"
               >
                 Upgrade to Pro
               </Button>
@@ -1583,7 +1584,7 @@ export default function App() {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 border-t border-white/5">
+      <footer className="py-20 border-t border-white/5">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-8">
             <div className="flex items-center gap-3">
@@ -1607,131 +1608,131 @@ export default function App() {
       </footer>
       {/* Upgrade Modal */}
       {showUpgradeModal && (
-        <div className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-xl flex items-center justify-center p-4 box-border">
+        <div className="fixed inset-0 z-[300] bg-black/90 backdrop-blur-xl flex items-center justify-center p-4 md:p-10">
           <motion.div 
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="w-full max-w-4xl max-h-[calc(100dvh-32px)] overflow-visible bg-[#0a0a0a] border border-cyan-500/30 rounded-[2rem] shadow-[0_0_80px_rgba(6,182,212,0.15)] relative flex flex-col scale-90 sm:scale-100"
+            className="w-full max-w-4xl bg-[#0a0a0a] border border-cyan-500/30 rounded-[2.5rem] overflow-hidden shadow-[0_0_100px_rgba(6,182,212,0.2)] relative"
           >
             <button 
               onClick={() => setShowUpgradeModal(false)}
-              className="absolute top-3 right-3 z-10 text-slate-500 hover:text-white transition-colors p-1.5 hover:bg-white/5 rounded-full"
+              className="absolute top-6 right-6 text-slate-500 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-full"
             >
-              <X size={20} />
+              <X size={24} />
             </button>
 
-            <div className="bg-gradient-to-r from-cyan-500/10 to-blue-600/10 p-4 md:p-6 border-b border-white/5">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="bg-gradient-to-r from-cyan-500/10 to-blue-600/10 p-8 md:p-12 border-b border-white/5">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
-                  <h2 className="text-2xl font-black tracking-tight mb-1 flex items-center gap-2">
-                    <Rocket className="text-cyan-400" size={28} />
+                  <h2 className="text-4xl font-black tracking-tight mb-2 flex items-center gap-3">
+                    <Rocket className="text-cyan-400" size={40} />
                     Pro Checkout
                   </h2>
-                  <p className="text-slate-400 text-sm">Unlock premium access instantly.</p>
+                  <p className="text-slate-400 text-lg">Complete your payment to unlock premium access.</p>
                 </div>
-                <div className="bg-black/40 backdrop-blur-md p-3 md:p-4 rounded-2xl border border-white/10 text-center min-w-[140px]">
-                  <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-0.5">Total Due</p>
-                  <p className="text-2xl font-black text-cyan-400">₹{selectedPlan === 'monthly' ? '199.00' : '299.00'}</p>
+                <div className="bg-black/40 backdrop-blur-md p-6 rounded-3xl border border-white/10 text-center min-w-[180px]">
+                  <p className="text-xs text-slate-500 uppercase font-bold tracking-widest mb-1">Total Due</p>
+                  <p className="text-4xl font-black text-cyan-400">₹{selectedPlan === 'monthly' ? '199.00' : '299.00'}</p>
                 </div>
               </div>
             </div>
             
-            <div className="p-4 md:p-6 space-y-4 overflow-visible">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                <div className="space-y-4">
-                  <h4 className="font-bold text-[10px] uppercase tracking-widest text-slate-500">1. Select Plan</h4>
-                  <div className="space-y-2">
+            <div className="p-8 md:p-12 space-y-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div className="space-y-6">
+                  <h4 className="font-bold text-sm uppercase tracking-widest text-slate-500">1. Select Plan</h4>
+                  <div className="space-y-3">
                     <button 
                       onClick={() => setSelectedPlan('monthly')}
-                      className={`w-full p-3 border rounded-xl flex items-center justify-between text-sm font-bold transition-all ${
+                      className={`w-full p-6 border rounded-2xl flex items-center justify-between text-lg font-bold transition-all ${
                         selectedPlan === 'monthly' 
-                        ? 'bg-cyan-500/10 border-cyan-500 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.1)]' 
+                        ? 'bg-cyan-500/10 border-cyan-500 text-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.1)]' 
                         : 'bg-white/5 border-white/5 text-slate-400 hover:border-white/10'
                       }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-2.5 h-2.5 rounded-full ${selectedPlan === 'monthly' ? 'bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,1)]' : 'bg-slate-700'}`} />
+                      <div className="flex items-center gap-4">
+                        <div className={`w-3 h-3 rounded-full ${selectedPlan === 'monthly' ? 'bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,1)]' : 'bg-slate-700'}`} />
                         1 Month Pro
                       </div>
                       <span>₹199</span>
                     </button>
                     <button 
                       onClick={() => setSelectedPlan('extended')}
-                      className={`w-full p-3 border rounded-xl flex items-center justify-between text-sm font-bold transition-all ${
+                      className={`w-full p-6 border rounded-2xl flex items-center justify-between text-lg font-bold transition-all ${
                         selectedPlan === 'extended' 
-                        ? 'bg-cyan-500/10 border-cyan-500 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.1)]' 
+                        ? 'bg-cyan-500/10 border-cyan-500 text-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.1)]' 
                         : 'bg-white/5 border-white/5 text-slate-400 hover:border-white/10'
                       }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-2.5 h-2.5 rounded-full ${selectedPlan === 'extended' ? 'bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,1)]' : 'bg-slate-700'}`} />
+                      <div className="flex items-center gap-4">
+                        <div className={`w-3 h-3 rounded-full ${selectedPlan === 'extended' ? 'bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,1)]' : 'bg-slate-700'}`} />
                         2 Months Pro
                       </div>
                       <span>₹299</span>
                     </button>
                   </div>
 
-                  <h4 className="font-bold text-[10px] uppercase tracking-widest text-slate-500 pt-2">2. Payment Method</h4>
-                  <div className="space-y-2">
-                    <button className="w-full p-3 bg-white/5 border border-cyan-500/50 rounded-xl flex items-center gap-3 text-sm font-bold">
-                      <div className="w-2.5 h-2.5 rounded-full bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,1)]" />
+                  <h4 className="font-bold text-sm uppercase tracking-widest text-slate-500 pt-4">2. Payment Method</h4>
+                  <div className="space-y-3">
+                    <button className="w-full p-6 bg-white/5 border border-cyan-500/50 rounded-2xl flex items-center gap-4 text-lg font-bold">
+                      <div className="w-3 h-3 rounded-full bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,1)]" />
                       Credit / Debit Card
                     </button>
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <h4 className="font-bold text-[10px] uppercase tracking-widest text-slate-500">3. Payment Details</h4>
-                  <div className="p-4 bg-white/5 border border-white/10 rounded-2xl space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="col-span-2 space-y-1.5">
-                        <Label className="text-[11px]">Card Number</Label>
+                <div className="space-y-6">
+                  <h4 className="font-bold text-sm uppercase tracking-widest text-slate-500">3. Payment Details</h4>
+                  <div className="p-8 bg-white/5 border border-white/10 rounded-3xl space-y-8">
+                    <div className="grid grid-cols-2 gap-6">
+                      <div className="col-span-2 space-y-3">
+                        <Label className="text-sm">Card Number</Label>
                         <Input 
                           placeholder="0000 0000 0000 0000" 
-                          className="bg-black border-white/10 h-10 text-sm" 
+                          className="bg-black border-white/10 h-14 text-lg" 
                           value={cardNumber}
                           onChange={(e) => setCardNumber(e.target.value)}
                         />
                       </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-[11px]">Expiry</Label>
+                      <div className="space-y-3">
+                        <Label className="text-sm">Expiry</Label>
                         <Input 
                           placeholder="MM/YY" 
-                          className="bg-black border-white/10 h-10 text-sm" 
+                          className="bg-black border-white/10 h-14 text-lg" 
                           value={expiry}
                           onChange={(e) => setExpiry(e.target.value)}
                         />
                       </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-[11px]">CVC</Label>
+                      <div className="space-y-3">
+                        <Label className="text-sm">CVC</Label>
                         <Input 
                           placeholder="***" 
-                          className="bg-black border-white/10 h-10 text-sm" 
+                          className="bg-black border-white/10 h-14 text-lg" 
                           value={cvc}
                           onChange={(e) => setCvc(e.target.value)}
                         />
                       </div>
-                      <div className="col-span-2 space-y-1.5 pt-2 border-t border-white/5">
-                        <Label className="text-[11px] text-cyan-400 font-bold">Secret Activation Code</Label>
+                      <div className="col-span-2 space-y-3 pt-4 border-t border-white/5">
+                        <Label className="text-sm text-cyan-400 font-bold">Secret Activation Code</Label>
                         <Input 
                           placeholder="Enter 5-digit code" 
-                          className="bg-cyan-500/5 border-cyan-500/30 h-10 text-sm text-cyan-400 placeholder:text-cyan-900" 
+                          className="bg-cyan-500/5 border-cyan-500/30 h-14 text-lg text-cyan-400 placeholder:text-cyan-900" 
                           value={secretCode}
                           onChange={(e) => setSecretCode(e.target.value)}
                         />
-                        <p className="text-[9px] text-slate-500 uppercase tracking-widest text-center">Bypass code "13908"</p>
+                        <p className="text-[10px] text-slate-500 uppercase tracking-widest">Enter "13908" to bypass payment for testing</p>
                       </div>
                     </div>
                     
-                    <div className="pt-2">
+                    <div className="pt-6 border-t border-white/5">
                       <Button 
                         onClick={handleUpgrade}
                         disabled={isUpgrading}
-                        className="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-black h-10 text-sm rounded-xl shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-all active:scale-95"
+                        className="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-black h-16 text-xl rounded-2xl shadow-[0_0_30px_rgba(6,182,212,0.4)] transition-all active:scale-95"
                       >
                         {isUpgrading ? <Loader2 className="animate-spin" /> : 'Pay & Activate Now'}
                       </Button>
-                      <p className="text-[8px] text-slate-500 text-center mt-1 uppercase tracking-widest">
+                      <p className="text-[10px] text-slate-500 text-center mt-4 uppercase tracking-widest">
                         Secure 256-bit SSL Encrypted Payment
                       </p>
                     </div>
