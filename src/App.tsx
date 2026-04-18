@@ -342,7 +342,7 @@ export default function App() {
     }, 1000);
   };
 
-  const handleDownload = async (type: 'apk' | 'ipa') => {
+  const handleDownload = async (type: 'apk' | 'ipa' | 'both') => {
     if (!url.trim()) {
       toast.error('Please enter a website URL before downloading.');
       return;
@@ -373,16 +373,22 @@ export default function App() {
       setBuildComplete(false);
       setBuildLogs(["Connecting to build server...", "Checking trial status...", "Preparing assets..."]);
 
-      if (type === 'apk') {
+      if (type === 'apk' || type === 'both') {
+        setDownloadTarget('apk');
         setBuildLogs(prev => [...prev, "Starting Android build process...", "This may take a few minutes if first time..."]);
         const response = await buildApi.downloadAndroid(payload);
-        setBuildLogs(prev => [...prev, "Build successful!", "Generating download link..."]);
+        setBuildLogs(prev => [...prev, "Android build successful!", "Generating download link..."]);
         const apkName = `${appName.toLowerCase().replace(/\s+/g, '-') || 'app'}.apk`;
         triggerDownload(response.data, apkName);
         toast.success('Android APK downloaded');
-      } else {
+        if (type === 'both') setBuildProgress(50);
+      }
+
+      if (type === 'ipa' || type === 'both') {
+        setDownloadTarget('ipa');
         setBuildLogs(prev => [...prev, "Starting iOS build process...", "Packaging IPA..."]);
         const response = await buildApi.downloadIOS(payload);
+        setBuildLogs(prev => [...prev, "iOS build successful!", "Generating download link..."]);
         triggerDownload(response.data, `${appName.toLowerCase().replace(/\s+/g, '-') || 'app'}-ios.zip`);
         toast.success('iOS download started');
       }
@@ -396,6 +402,7 @@ export default function App() {
       setBuildComplete(false);
     } finally {
       setIsBuilding(false);
+      setDownloadTarget(null);
     }
   };
 
@@ -828,6 +835,16 @@ export default function App() {
                             : 'Download iOS App'}
                         </Button>
                       </div>
+
+                      <Button
+                        onClick={() => handleDownload('both')}
+                        disabled={isBuilding}
+                        className="w-full h-14 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-black text-lg rounded-2xl shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all animate-shimmer"
+                      >
+                        {isBuilding && (downloadTarget === 'apk' || downloadTarget === 'ipa')
+                          ? `Building Multi-Platform...`
+                          : 'Download Both (APK + iOS)'}
+                      </Button>
 
                       {/* Build Process Terminal */}
                       {(isBuilding || buildComplete || downloadStage === 'building') && (
