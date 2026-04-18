@@ -82,6 +82,8 @@ export default function App() {
   
   const [url, setUrl] = useState('');
   const [previewUrl, setPreviewUrl] = useState('');
+  const [previewError, setPreviewError] = useState(false);
+  const [previewLoading, setPreviewLoading] = useState(false);
   const [appName, setAppName] = useState('My Web App');
   const [description, setDescription] = useState('My awesome web application converted to an app.');
   const [themeColor, setThemeColor] = useState('#00d8ff');
@@ -106,6 +108,7 @@ export default function App() {
   const [expiry, setExpiry] = useState('');
   const [cvc, setCvc] = useState('');
   const [isUpgrading, setIsUpgrading] = useState(false);
+  const previewTimeoutRef = useRef<number | null>(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
 
@@ -204,6 +207,49 @@ export default function App() {
     };
   }, []);
 
+  // Auto-update preview URL when url state changes
+  useEffect(() => {
+    if (!url.trim()) {
+      setPreviewUrl('');
+      setPreviewError(false);
+      return;
+    }
+    const formattedUrl = url.startsWith('http://') || url.startsWith('https://')
+      ? url
+      : `https://${url}`;
+    if (formattedUrl !== previewUrl) {
+      setPreviewUrl(formattedUrl);
+      setPreviewError(false);
+    }
+  }, [url, previewUrl]);
+
+  // Preview timeout effect
+  useEffect(() => {
+    if (!previewUrl) {
+      if (previewTimeoutRef.current) {
+        window.clearTimeout(previewTimeoutRef.current);
+        previewTimeoutRef.current = null;
+      }
+      return;
+    }
+
+    if (previewTimeoutRef.current) {
+      window.clearTimeout(previewTimeoutRef.current);
+    }
+
+    previewTimeoutRef.current = window.setTimeout(() => {
+      setPreviewError(true);
+      previewTimeoutRef.current = null;
+    }, 4500);
+
+    return () => {
+      if (previewTimeoutRef.current) {
+        window.clearTimeout(previewTimeoutRef.current);
+        previewTimeoutRef.current = null;
+      }
+    };
+  }, [previewUrl]);
+
   /* // DELETED
   useEffect(() => {
     if(progress < 100){
@@ -259,6 +305,7 @@ export default function App() {
   const handlePreview = () => {
     if (!url.trim()) {
       setPreviewUrl('');
+      setPreviewError(false);
       return;
     }
     let formattedUrl = url;
@@ -266,7 +313,10 @@ export default function App() {
       formattedUrl = 'https://' + url;
     }
     setPreviewUrl(formattedUrl);
+    setPreviewError(false);
   };
+
+
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -890,7 +940,40 @@ export default function App() {
                       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 xs:w-36 h-6 xs:h-7 bg-[#1a1a1a] rounded-b-2xl xs:rounded-b-3xl z-20" />
                       <div className="w-full h-full bg-white rounded-[2rem] xs:rounded-[2.5rem] overflow-hidden relative">
                         {url ? (
-                          <iframe src={previewUrl} className="w-full h-full border-none" title="Preview" />
+                          previewError ? (
+                            <div className="w-full h-full bg-black flex flex-col items-center justify-center p-6 text-center">
+                              <div className="text-slate-300 text-lg font-semibold mb-2">Preview unavailable</div>
+                              <p className="text-sm text-slate-500 max-w-xs mx-auto mb-6">
+                                This website cannot be displayed in the mobile preview because it blocks iframe embedding or the connection was refused.
+                              </p>
+                              <Button
+                                onClick={handlePreview}
+                                className="bg-cyan-500 hover:bg-cyan-400 text-black px-6 py-3 rounded-full"
+                              >
+                                Retry Preview
+                              </Button>
+                            </div>
+                          ) : (
+                            <iframe
+                              src={previewUrl}
+                              className="w-full h-full border-none"
+                              title="Preview"
+                              onError={() => {
+                                if (previewTimeoutRef.current) {
+                                  window.clearTimeout(previewTimeoutRef.current);
+                                  previewTimeoutRef.current = null;
+                                }
+                                setPreviewError(true);
+                              }}
+                              onLoad={() => {
+                                if (previewTimeoutRef.current) {
+                                  window.clearTimeout(previewTimeoutRef.current);
+                                  previewTimeoutRef.current = null;
+                                }
+                                setPreviewError(false);
+                              }}
+                            />
+                          )
                         ) : (
                           <div className="w-full h-full bg-black flex flex-col items-center justify-center p-6 text-center">
                             <motion.div 
