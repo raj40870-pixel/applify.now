@@ -65,7 +65,7 @@ export default function App() {
   const getTrialDaysLeft = () => {
     if (!user?.createdAt) return 0;
     const createdDate = new Date(user.createdAt);
-    const trialEndDate = new Date(createdDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+    const trialEndDate = new Date(createdDate.getTime() + 15 * 24 * 60 * 60 * 1000);
     const today = new Date();
     const diffTime = trialEndDate.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -349,7 +349,7 @@ export default function App() {
     }
 
     if (isTrialExpired && !user?.isPro) {
-      toast.error('Your 30-day trial has expired. Please upgrade to Pro to download apps.');
+      toast.error('Your 15-day trial has expired. Please upgrade to Pro to download apps.');
       setShowUpgradeModal(true);
       return;
     }
@@ -444,7 +444,7 @@ export default function App() {
     }
 
     if (isTrialExpired && !user?.isPro) {
-      toast.error('Your 30-day trial has expired. Please upgrade to Pro to continue building apps.');
+      toast.error('Your 15-day trial has expired. Please upgrade to Pro to continue building apps.');
       setShowUpgradeModal(true);
       return;
     }
@@ -684,7 +684,7 @@ export default function App() {
                   </div>
                   <div className="space-y-2">
                     <h2 className="text-3xl font-black text-cyan-400">Trial Expired</h2>
-                    <p className="text-slate-400">Your 30-day free trial has ended. Please upgrade to Pro to continue building apps.</p>
+                    <p className="text-slate-400">Your 15-day free trial has ended. Please upgrade to Pro to continue building apps.</p>
                   </div>
                   <Button 
                     className="w-full h-14 bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-lg rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.3)]"
@@ -1486,7 +1486,7 @@ export default function App() {
         <div className="container mx-auto px-6">
           <div className="text-center mb-20">
             <h2 className="text-4xl md:text-5xl font-black mb-6">Simple, transparent pricing</h2>
-            <p className="text-slate-400">Start with a 30-day free trial, upgrade to Pro for premium features.</p>
+            <p className="text-slate-400">Start with a 15-day free trial, upgrade to Pro for premium features.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
@@ -1495,7 +1495,7 @@ export default function App() {
               <h3 className="text-2xl font-black mb-2 text-cyan-400">Free Trial</h3>
               <div className="flex items-baseline gap-1 mb-8">
                 <span className="text-4xl font-black">$0</span>
-                <span className="text-slate-500">/30 days</span>
+                <span className="text-slate-500">/15 days</span>
               </div>
               <ul className="space-y-4 mb-12 flex-1">
                 <li className="flex items-center gap-3 text-slate-300 text-sm">
@@ -1515,7 +1515,7 @@ export default function App() {
                 onClick={goToConverter}
                 className="h-12 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold shadow-[0_0_20px_rgba(6,182,212,0.3)]"
               >
-                30 Days Free Trial
+                15 Days Free Trial
               </Button>
             </div>
 
