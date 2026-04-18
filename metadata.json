@@ -1,0 +1,5 @@
+{
+  "name": "AppifyNow",
+  "description": "Convert any website into a mobile-ready Progressive Web App (PWA) with custom branding and offline support.",
+  "requestFramePermissions": ["camera", "microphone", "geolocation"]
+}

@@ -1,0 +1,46 @@
+﻿
+import React, { useState, useRef, useEffect } from 'react';
+  // const [progress, setProgress] = useState(0) // DELETED
+  // const [isLoading, setIsLoading] = useState(true) // DELETED
+  const [buildScore, setBuildScore] = useState(85) // KEPT
+  const [view, setView] = useState<'landing' | 'dashboard'>('landing');
+  const [activeTab, setActiveTab] = useState('converter');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [url, setUrl] = useState('');
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [appName, setAppName] = useState('My Web App');
+  const [description, setDescription] = useState('My awesome web application converted to an app.');
+  const [themeColor, setThemeColor] = useState('#00d8ff');
+  const [backgroundColor, setBackgroundColor] = useState('#000000');
+  const [displayMode, setDisplayMode] = useState('standalone');
+  const [iconUrl, setIconUrl] = useState('https://picsum.photos/seed/appicon/512/512');
+  const [downloadStage, setDownloadStage] = useState<'idle' | 'building' | 'complete'>('idle');
+  const [downloadProgress, setDownloadProgress] = useState(0);
+  const [downloadTarget, setDownloadTarget] = useState<'apk' | 'ipa' | null>(null);
+  const [isCopied, setIsCopied] = useState(false);
+  const [buildEngine, setBuildEngine] = useState<'android' | 'ios' | 'both'>('android');
+  const [isBuilding, setIsBuilding] = useState(false);
+  const [buildProgress, setBuildProgress] = useState(0);
+  const [buildComplete, setBuildComplete] = useState(false);
+  const [buildLogs, setBuildLogs] = useState<string[]>([]);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [isServerConnecting, setIsServerConnecting] = useState(false);
+  const [isServerConnected, setIsServerConnected] = useState(false);
+  const [secretCode, setSecretCode] = useState('');
+  const [cardNumber, setCardNumber] = useState('');
+  const [expiry, setExpiry] = useState('');
+  const [cvc, setCvc] = useState('');
+  const [isUpgrading, setIsUpgrading] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'extended'>('monthly');
+  const [autoSave, setAutoSave] = useState(true);
+  const [hapticFeedback, setHapticFeedback] = useState(true);
+  useEffect(() => {
+  useEffect(() => {
+  useEffect(() => {
+  useEffect(() => {
+  useEffect(() => {
+
+
