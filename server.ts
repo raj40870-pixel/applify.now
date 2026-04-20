@@ -33,7 +33,10 @@ const isProduction = process.env.NODE_ENV === "production";
 const execAsync = promisify(exec);
 const defaultAllowedOrigins = [
   "http://localhost:5000",
+  "http://localhost:5001",
+  "http://localhost:5173",
   "http://127.0.0.1:5000",
+  "http://127.0.0.1:5001",
   "capacitor://localhost",
   "http://localhost",
 ];
@@ -303,10 +306,7 @@ app.post("/api/build/android", async (req, res) => {
     const safeName = sanitizeFileName(appName || "app");
     const apkPath = path.join(process.cwd(), "android", "app", "build", "outputs", "apk", "debug", "app-debug.apk");
 
-    const dummyApkPath = path.join(process.cwd(), "dummy-app.apk");
-    if (!fs.existsSync(dummyApkPath)) {
-      fs.writeFileSync(dummyApkPath, "This is a simulated APK file. Your backend Android SDK is missing.");
-    }
+
 
     try {
       console.log(`[BUILD] Starting Android build for: ${safeName} (${appUrl})`);
@@ -321,13 +321,12 @@ app.post("/api/build/android", async (req, res) => {
       });
       console.log(`[BUILD] Build process finished successfully for ${safeName}`);
     } catch (cmdErr: any) {
-      console.warn(`[BUILD] Real build failed for ${safeName}. Error: ${cmdErr.message}`);
-      console.log("[BUILD] Returning simulated/dummy APK fallback...");
-      return res.download(dummyApkPath, `${safeName}.apk`);
+      console.error(`[BUILD] Real build failed for ${safeName}. Error: ${cmdErr.message}`);
+      throw cmdErr;
     }
 
     if (!fs.existsSync(apkPath)) {
-      return res.download(dummyApkPath, `${safeName}.apk`);
+      throw new Error("Build succeeded but APK file was not found.");
     }
 
     res.download(apkPath, `${safeName}.apk`);
