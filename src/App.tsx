@@ -392,7 +392,7 @@ export default function App() {
     }, 1000);
   };
 
-  const handleDownload = async (type: 'apk' | 'ipa' | 'both') => {
+  const handleDownload = async (type: 'apk' | 'ipa' | 'both', mode: 'debug' | 'release' = 'debug') => {
     if (!url.trim()) {
       toast.error('Please enter a website URL before downloading.');
       return;
@@ -404,7 +404,7 @@ export default function App() {
       return;
     }
     const targetUrl = previewUrl || (url ? (url.startsWith('http://') || url.startsWith('https://') ? url : `https://${url}`) : '');
-    const payload = { appName, appUrl: targetUrl, iconUrl, themeColor };
+    const payload = { appName, appUrl: targetUrl, iconUrl, themeColor, mode };
 
     const triggerDownload = (blob: Blob, filename: string) => {
       const downloadUrl = window.URL.createObjectURL(blob);
@@ -421,16 +421,24 @@ export default function App() {
       setIsBuilding(true);
       setBuildProgress(10);
       setBuildComplete(false);
-      setBuildLogs(["Connecting to build server...", "Checking trial status...", "Preparing assets..."]);
+      setBuildLogs(["Connecting to build server...", "Checking trial status...", `Preparing ${mode} assets...`]);
 
       if (type === 'apk' || type === 'both') {
         setDownloadTarget('apk');
-        setBuildLogs(prev => [...prev, "Starting Android build process...", "This may take a few minutes if first time..."]);
+        setBuildLogs(prev => [...prev, `Starting Android ${mode} build process...`, "This may take a few minutes for complex websites..."]);
+        
+        // Progress interval
+        const progInt = setInterval(() => {
+          setBuildProgress(p => p < 95 ? p + Math.random() * 2 : p);
+        }, 800);
+
         const response = await buildApi.downloadAndroid(payload);
-        setBuildLogs(prev => [...prev, "Android build successful!", "Generating download link..."]);
-        const apkName = `${appName.toLowerCase().replace(/\s+/g, '-') || 'app'}.apk`;
+        clearInterval(progInt);
+        
+        setBuildLogs(prev => [...prev, `${mode.toUpperCase()} build successful!`, "Generating signed package..."]);
+        const apkName = `${appName.toLowerCase().replace(/\s+/g, '-') || 'app'}-${mode}.apk`;
         triggerDownload(response.data, apkName);
-        toast.success('Android APK downloaded');
+        toast.success(`Android ${mode} APK downloaded`);
         if (type === 'both') setBuildProgress(50);
       }
 
@@ -447,7 +455,7 @@ export default function App() {
       setBuildComplete(true);
     } catch (error: any) {
       const message = error.response?.data?.message || 'Build failed. Please try again.';
-      setBuildLogs(prev => [...prev, "ERROR: Build failed.", message]);
+      setBuildLogs(prev => [...prev, "ERROR: Real Build Engine failed.", message]);
       toast.error(message);
       setBuildComplete(false);
     } finally {
@@ -455,6 +463,7 @@ export default function App() {
       setDownloadTarget(null);
     }
   };
+
 
   const getLogs = () => {
     if (buildEngine === 'android') {
@@ -831,7 +840,10 @@ export default function App() {
 
 
                     <div className="space-y-4 pt-4">
-                      <Label className="text-slate-400">Download Mobile App</Label>
+                      <div className="flex items-center justify-between mb-2">
+                        <Label className="text-slate-400">Build & Download</Label>
+                        <Badge variant="outline" className="text-[10px] text-green-400 border-green-500/20 bg-green-500/5">Real Build Engine</Badge>
+                      </div>
 
                       {(isBuilding || buildComplete) && (
                         <div className="space-y-2">
@@ -839,77 +851,66 @@ export default function App() {
                             <motion.div
                               initial={{ width: 0 }}
                               animate={{ width: `${buildProgress}%` }}
-                              className="h-full bg-[#00d8ff]"
+                              className="h-full bg-gradient-to-r from-cyan-500 to-blue-500"
                             />
                           </div>
                           <p className="text-sm text-slate-200">
                             {isBuilding
-                              ? `Building Android APK... ${Math.round(buildProgress)}%`
+                              ? `${downloadTarget === 'apk' ? 'Building Android APK' : 'Building App'}... ${Math.round(buildProgress)}%`
                               : 'Build Complete! Your download should start shortly.'}
-                          </p>
-                        </div>
-                      )}
-
-                      {(downloadStage === 'building' || downloadStage === 'complete') && (
-                        <div className="space-y-2">
-                          <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-[#00d8ff] transition-all duration-300"
-                              style={{ width: `${downloadProgress}%` }}
-                            />
-                          </div>
-                          <p className="text-sm text-slate-200">
-                            {downloadStage === 'building'
-                              ? `Processing ${downloadTarget === 'apk' ? 'APK' : 'iOS App'}... ${downloadProgress}%`
-                              : 'Ready!'}
                           </p>
                         </div>
                       )}
 
                       <div className="grid grid-cols-2 gap-3">
                         <Button
-                          onClick={() => handleDownload('apk')}
+                          onClick={() => handleDownload('apk', 'debug')}
                           disabled={isBuilding}
-                          className="h-12 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-full disabled:cursor-not-allowed disabled:opacity-60"
+                          className="h-12 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold rounded-xl disabled:cursor-not-allowed disabled:opacity-60 flex gap-2"
                         >
-                          {isBuilding && downloadTarget === 'apk'
-                            ? `Building APK...`
-                            : 'Download Android APK'}
+                          <Smartphone size={16} /> Debug APK
                         </Button>
                         <Button
-                          onClick={() => handleDownloadButton('ipa')}
-                          className="h-12 bg-white text-black hover:bg-slate-200 font-bold rounded-full disabled:cursor-not-allowed disabled:opacity-60"
+                          onClick={() => handleDownload('apk', 'release')}
+                          disabled={isBuilding}
+                          className="h-12 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-xl disabled:cursor-not-allowed disabled:opacity-60 flex gap-2 shadow-[0_0_15px_rgba(6,182,212,0.3)]"
                         >
-                          {downloadStage === 'building' && downloadTarget === 'ipa'
-                            ? `Building iOS...`
-                            : 'Download iOS App'}
+                          <Rocket size={16} /> Release APK
                         </Button>
                       </div>
 
-                      <Button
-                        onClick={() => handleDownload('both')}
-                        disabled={isBuilding}
-                        className="w-full h-14 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-black text-lg rounded-2xl shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all animate-shimmer"
-                      >
-                        {isBuilding && (downloadTarget === 'apk' || downloadTarget === 'ipa')
-                          ? `Building Multi-Platform...`
-                          : 'Download Both (APK + iOS)'}
-                      </Button>
+                      <div className="p-4 bg-cyan-500/5 border border-cyan-500/20 rounded-2xl space-y-3">
+                        <div className="flex items-center gap-2 text-cyan-400 font-bold text-sm">
+                          <Star size={16} /> Publish to Google Play
+                        </div>
+                        <p className="text-[10px] text-slate-400 leading-relaxed">
+                          To publish on Google Play Store, download the <strong>Release APK</strong>. You'll need to sign it with your own production keystore using <code>apksigner</code> before uploading to the Play Console.
+                        </p>
+                        <Button
+                          onClick={() => handleDownload('apk', 'release')}
+                          disabled={isBuilding}
+                          variant="ghost"
+                          size="sm"
+                          className="w-full text-xs text-cyan-400 hover:bg-cyan-500/10 hover:text-cyan-300 border border-cyan-500/20 h-10"
+                        >
+                          Build Production Ready APK
+                        </Button>
+                      </div>
 
                       {/* Build Process Terminal */}
-                      {(isBuilding || buildComplete || downloadStage === 'building') && (
+                      {(isBuilding || buildComplete) && (
                         <div className="mt-6 space-y-3">
                           <div className="flex items-center justify-between">
                             <Label className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                              <Terminal size={14} className="text-cyan-500" /> Build Process
+                              <Terminal size={14} className="text-cyan-500" /> Live Build Log
                             </Label>
                             <Badge variant="outline" className="text-[10px] border-cyan-500/30 text-cyan-400 animate-pulse">
-                              {buildComplete ? 'Finished' : 'Running'}
+                              {buildComplete ? 'Finished' : 'Processing'}
                             </Badge>
                           </div>
-                          <div className="bg-[#050505] border border-white/5 rounded-xl p-4 font-mono text-[10px] h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10">
+                          <div className="bg-black border border-white/10 rounded-xl p-4 font-mono text-[10px] h-40 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10">
                             <div className="space-y-1.5">
-                              {(buildLogs.length > 0 ? buildLogs : ["Waiting for process..."]).map((log, index) => (
+                              {(buildLogs.length > 0 ? buildLogs : ["Connecting to cloud build server..."]).map((log, index) => (
                                 <motion.div 
                                   initial={{ opacity: 0, x: -5 }}
                                   animate={{ opacity: 1, x: 0 }}
@@ -1009,6 +1010,7 @@ export default function App() {
               </div>
             )}
 
+
             {activeTab === 'projects' && (
               <div className="h-full">
                 {projects.length === 0 ? (
@@ -1047,13 +1049,17 @@ export default function App() {
                       <Check size={12} /> Ready
                     </span>
                   </div>
-                          <div className="grid grid-cols-3 gap-2">
-                            <Button variant="outline" size="sm" className="border-white/10 text-[10px] px-1" onClick={() => handleDownload('apk')}>
-                              <Download size={10} className="mr-1" /> APK
-                            </Button>
-                            <Button variant="outline" size="sm" className="border-white/10 text-[10px] px-1" onClick={() => handleDownload('ipa')}>
-                              <Download size={10} className="mr-1" /> IPA
-                            </Button>
+                            <div className="grid grid-cols-2 gap-2">
+                              <Button variant="outline" size="sm" className="border-white/10 text-[10px] px-1 hover:text-cyan-400" onClick={() => handleDownload('apk', 'debug')}>
+                                <Smartphone size={10} className="mr-1" /> Debug
+                              </Button>
+                              <Button variant="outline" size="sm" className="border-white/10 text-[10px] px-1 hover:text-cyan-400" onClick={() => handleDownload('apk', 'release')}>
+                                <Rocket size={10} className="mr-1" /> Release
+                              </Button>
+                              <Button variant="outline" size="sm" className="border-white/10 text-[10px] px-1" onClick={() => handleDownload('ipa')}>
+                                <Download size={10} className="mr-1" /> IPA
+                              </Button>
+
                             <Button 
                               variant="outline" 
                               size="sm" 

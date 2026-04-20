@@ -1,6 +1,9 @@
 $ErrorActionPreference = "Stop"
+param (
+    [string]$mode = "debug"
+)
 
-Write-Host "== Android build preflight ==" -ForegroundColor Cyan
+Write-Host "== Android build preflight (Mode: $mode) ==" -ForegroundColor Cyan
 
 $jdkPath = "C:\Program Files\Eclipse Adoptium\jdk-17.0.18.8-hotspot"
 $jdkPaths = @(
@@ -37,7 +40,7 @@ if (-not $env:ANDROID_HOME) {
 }
 
 if (-not $env:JAVA_HOME) {
-  throw "JAVA_HOME missing. Install JDK 17 and set JAVA_HOME or JDK_HOME."
+  throw "JAVA_HOME missing. Install JDK 17/21 and set JAVA_HOME or JDK_HOME."
 }
 
 if (-not (Test-Path $env:JAVA_HOME)) {
@@ -67,15 +70,29 @@ Write-Host "== Build web + sync capacitor ==" -ForegroundColor Cyan
 npm run build
 npx cap sync android
 
-Write-Host "== Clean + assemble debug APK ==" -ForegroundColor Cyan
+Write-Host "== Clean + assemble $mode APK ==" -ForegroundColor Cyan
 Push-Location "android"
-.\gradlew.bat clean assembleDebug
+if ($mode -eq "release") {
+    .\gradlew.bat clean assembleRelease
+} else {
+    .\gradlew.bat clean assembleDebug
+}
 Pop-Location
 
-$apkPath = "android\app\build\outputs\apk\debug\app-debug.apk"
-if (-not (Test-Path $apkPath)) {
-  throw "APK not found at $apkPath"
+$apkDir = "android\app\build\outputs\apk\$mode"
+$apkFile = if ($mode -eq "release") { "app-release-unsigned.apk" } else { "app-debug.apk" }
+# Actually release might be named differently depending on signing config, checking for any .apk in output
+$apkPath = Get-ChildItem -Path $apkDir -Filter "*.apk" -Recurse | Select-Object -ExpandProperty FullName -First 1
+
+if (-not $apkPath -or -not (Test-Path $apkPath)) {
+  throw "APK not found in $apkDir"
 }
 
 $sizeMb = [Math]::Round((Get-Item $apkPath).Length / 1MB, 2)
 Write-Host "APK created: $apkPath ($sizeMb MB)" -ForegroundColor Green
+
+# Copy to a predictable location for the server
+$finalPath = Join-Path $PSScriptRoot "..\build-output.apk"
+Copy-Item $apkPath $finalPath -Force
+Write-Host "Final APK ready at: $finalPath" -ForegroundColor Cyan
+

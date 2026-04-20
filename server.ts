@@ -302,15 +302,19 @@ const sanitizeFileName = (value: string) =>
 
 app.post("/api/build/android", async (req, res) => {
   try {
-    const { appName, appUrl } = req.body || {};
+    const { appName, appUrl, mode = "debug" } = req.body || {};
     const safeName = sanitizeFileName(appName || "app");
-    const apkPath = path.join(process.cwd(), "android", "app", "build", "outputs", "apk", "debug", "app-debug.apk");
-
-
+    const apkPath = path.join(process.cwd(), "build-output.apk");
 
     try {
-      console.log(`[BUILD] Starting Android build for: ${safeName} (${appUrl})`);
-      await execAsync("npm run apk:build:win", {
+      console.log(`[BUILD] Starting Android ${mode} build for: ${safeName} (${appUrl})`);
+      
+      // Clean up previous build output
+      if (fs.existsSync(apkPath)) {
+        fs.unlinkSync(apkPath);
+      }
+
+      await execAsync(`npm run apk:build:win -- -mode ${mode}`, {
         cwd: process.cwd(),
         timeout: 1000 * 60 * 15,
         maxBuffer: 1024 * 1024 * 10,
@@ -329,13 +333,17 @@ app.post("/api/build/android", async (req, res) => {
       throw new Error("Build succeeded but APK file was not found.");
     }
 
-    res.download(apkPath, `${safeName}.apk`);
+    res.download(apkPath, `${safeName}-${mode}.apk`);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Build failed";
     console.error("Android build error:", errorMessage);
-    res.status(500).json({ message: "Unable to build Android app right now. Please retry." });
+    res.status(500).json({ 
+      message: "Unable to build Android app right now. Please retry.",
+      error: !isProduction ? errorMessage : undefined
+    });
   }
 });
+
 
 app.post("/api/build/ios", async (_req, res) => {
   const testflightUrl = process.env.TESTFLIGHT_URL || "https://testflight.apple.com/";
