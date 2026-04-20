@@ -57,8 +57,8 @@ app.use(cors({
   },
   credentials: true,
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '100mb' }));
+app.use(express.urlencoded({ extended: true, limit: '100mb', parameterLimit: 100000 }));
 
 app.use((req, res, next) => {
   const startedAt = Date.now();
@@ -301,10 +301,27 @@ const sanitizeFileName = (value: string) =>
   value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "app";
 
 app.post("/api/build/android", async (req, res) => {
+  console.log("🚀 Incoming Build Request for Android...");
   try {
     const { appName, appUrl, mode = "debug" } = req.body || {};
     const safeName = sanitizeFileName(appName || "app");
     const apkPath = path.join(process.cwd(), "build-output.apk");
+
+    // Pre-flight environment check
+    if (!process.env.JAVA_HOME && !fs.existsSync("C:\\Program Files\\Eclipse Adoptium")) {
+       return res.status(500).json({
+         message: "Java JDK 21 is missing!",
+         error: "Please install JDK 21 and set JAVA_HOME. Real APKs require a Java compiler to work properly on mobile."
+       });
+    }
+
+    if (!process.env.ANDROID_HOME && !fs.existsSync(path.join(process.env.LOCALAPPDATA || "", "Android\\Sdk"))) {
+       return res.status(500).json({
+         message: "Android SDK is missing!",
+         error: "Please run 'powershell ./scripts/install-sdk.ps1' in your terminal to install the Real Android Build Engine."
+       });
+    }
+
 
     try {
       console.log(`[BUILD] Starting Android ${mode} build for: ${safeName} (${appUrl})`);
@@ -334,14 +351,24 @@ app.post("/api/build/android", async (req, res) => {
     }
 
     res.download(apkPath, `${safeName}-${mode}.apk`);
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Build failed";
-    console.error("Android build error:", errorMessage);
+  } catch (error: any) {
+    const errorMessage = error.message || "Internal Build Error";
+    const stdout = error.stdout || "";
+    const stderr = error.stderr || "";
+    
+    console.error("--- ANDROID BUILD ERROR ---");
+    console.error("Message:", errorMessage);
+    if (stderr) console.error("STDERR:", stderr);
+    console.error("---------------------------");
+    
     res.status(500).json({ 
-      message: "Unable to build Android app right now. Please retry.",
-      error: !isProduction ? errorMessage : undefined
+      message: errorMessage.includes("JAVA_HOME") ? "Java (JDK 21) is not installed or configured." : 
+               errorMessage.includes("ANDROID_HOME") ? "Android SDK is not installed or configured." :
+               "Build Engine Error: " + errorMessage,
+      error: stderr || stdout || errorMessage
     });
   }
+
 });
 
 

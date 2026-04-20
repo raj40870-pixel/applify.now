@@ -1,7 +1,8 @@
-$ErrorActionPreference = "Stop"
 param (
     [string]$mode = "debug"
 )
+$ErrorActionPreference = "Stop"
+
 
 Write-Host "== Android build preflight (Mode: $mode) ==" -ForegroundColor Cyan
 
@@ -55,13 +56,14 @@ if (-not (Test-Path $env:ANDROID_HOME)) {
   throw "ANDROID_HOME path does not exist: $env:ANDROID_HOME"
 }
 
+$env:Path = "$env:JAVA_HOME\bin;$env:ANDROID_HOME\platform-tools;$env:ANDROID_HOME\cmdline-tools\latest\bin;$env:Path"
+
 $debugKeystorePath = Join-Path $env:USERPROFILE ".android\debug.keystore"
 if (-not (Test-Path $debugKeystorePath)) {
   Write-Host "Generating Android debug keystore at $debugKeystorePath"
   keytool -genkeypair -alias androiddebugkey -keypass android -keystore $debugKeystorePath -storepass android -dname "CN=Android Debug,O=Android,C=US" -keyalg RSA -keysize 2048 -validity 10000
 }
 
-$env:Path = "$env:JAVA_HOME\bin;$env:ANDROID_HOME\platform-tools;$env:ANDROID_HOME\cmdline-tools\latest\bin;$env:Path"
 
 Write-Host "JAVA_HOME=$env:JAVA_HOME"
 Write-Host "ANDROID_HOME=$env:ANDROID_HOME"
