@@ -34,7 +34,8 @@ import {
   Box,
   Cpu,
   Terminal,
-  Apple
+  Apple,
+  ArrowLeft
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button } from '@/components/ui/button';
@@ -62,21 +63,24 @@ export default function App() {
   // const [progress, setProgress] = useState(0) // DELETED
   // const [isLoading, setIsLoading] = useState(true) // DELETED
   const [buildScore, setBuildScore] = useState(85) // KEPT
-  // Trial Logic
+  // Trial Logic (15-day countdown)
   const getTrialDaysLeft = () => {
-    if (!user?.createdAt) return 0;
-    const createdDate = new Date(user.createdAt);
-    const trialEndDate = new Date(createdDate.getTime() + 15 * 24 * 60 * 60 * 1000);
-    const today = new Date();
-    const diffTime = trialEndDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return Math.max(0, diffDays);
+    if (!user?.createdAt) return 15;
+    try {
+      const createdDate = new Date(user.createdAt);
+      const today = new Date();
+      const diffTime = today.getTime() - createdDate.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      return Math.max(0, 15 - diffDays);
+    } catch (e) {
+      return 15;
+    }
   };
 
   const trialDaysLeft = getTrialDaysLeft();
-  const isTrialExpired = trialDaysLeft <= 0 && isAuthenticated && !user?.isPro;
+  const isTrialExpired = !user?.isPro && trialDaysLeft <= 0;
 
-  const [view, setView] = useState<'landing' | 'dashboard'>('landing');
+  const [view, setView] = useState<'landing' | 'dashboard' | 'pro'>('landing');
   const [activeTab, setActiveTab] = useState('converter');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -155,6 +159,11 @@ export default function App() {
     }
     if (plan) setSelectedPlan(plan);
     setShowUpgradeModal(true);
+  };
+
+  const goToPricing = () => {
+    setView('pro');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleUpgrade = async () => {
@@ -776,7 +785,10 @@ export default function App() {
                   <button className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-white/5 rounded-lg flex items-center gap-2">
                     <Lock size={14} /> Account Security
                   </button>
-                  <button className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-white/5 rounded-lg flex items-center gap-2">
+                  <button 
+                    onClick={goToPricing}
+                    className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-white/5 rounded-lg flex items-center gap-2"
+                  >
                     <Star size={14} /> Upgrade Plan
                   </button>
                   <div className="h-px bg-white/5 my-2" />
@@ -805,7 +817,7 @@ export default function App() {
                   </div>
                   <Button 
                     className="w-full h-14 bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-lg rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.3)]"
-                    onClick={() => setShowUpgradeModal(true)}
+                    onClick={goToPricing}
                   >
                     Upgrade to Pro Plan
                   </Button>
@@ -1093,6 +1105,29 @@ export default function App() {
 
             {activeTab === 'settings' && (
               <div className="max-w-4xl space-y-8">
+                {/* Unlimited Trial Banner */}
+                {!user?.isPro && (
+                  <Card className="bg-cyan-500/10 border-cyan-500/20 text-white overflow-hidden shadow-[0_0_50px_rgba(6,182,212,0.1)]">
+                    <CardContent className="p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+                      <div className="flex items-center gap-6">
+                        <div className="w-16 h-16 bg-cyan-500/20 rounded-3xl flex items-center justify-center text-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.2)]">
+                          <Star size={32} fill="currentColor" />
+                        </div>
+                        <div>
+                          <h3 className="text-2xl font-black text-cyan-400">Free Trial Active</h3>
+                          <p className="text-slate-400">{trialDaysLeft} days remaining in your AI package</p>
+                        </div>
+                      </div>
+                      <Button 
+                        onClick={goToPricing}
+                        className="bg-cyan-500 hover:bg-cyan-400 text-black font-black px-10 h-14 rounded-2xl shadow-[0_0_30px_rgba(6,182,212,0.3)] whitespace-nowrap"
+                      >
+                        Upgrade Now
+                      </Button>
+                    </CardContent>
+                  </Card>
+                )}
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Account Card */}
                   <Card className="bg-[#0a0a0a] border-white/5 text-white">
@@ -1112,7 +1147,7 @@ export default function App() {
                           <div>
                             <p className="font-bold truncate max-w-[150px]">{user?.email || 'User'}</p>
                             <p className="text-xs text-slate-500">
-                              {user?.isPro ? 'Pro Member' : (trialDaysLeft > 0 ? `${trialDaysLeft} Days Trial Left` : 'Trial Expired')}
+                               {user?.isPro ? 'Pro Member' : (trialDaysLeft > 0 ? `${trialDaysLeft} Days Trial Left` : 'Trial Expired')}
                             </p>
                           </div>
                         </div>
@@ -1251,6 +1286,183 @@ export default function App() {
             )}
           </div>
         </main>
+      </div>
+    );
+  }
+
+  if (view === 'pro') {
+    return (
+      <div className="min-h-screen bg-[#000000] text-white font-sans selection:bg-cyan-500/30 overflow-x-hidden">
+        <Toaster position="top-center" theme="dark" />
+        
+        {/* Navbar */}
+        <nav className="fixed top-0 z-[100] w-full border-b border-white/5 bg-black/50 backdrop-blur-xl">
+          <div className="container mx-auto px-6 h-20 flex items-center justify-between">
+            <button 
+              onClick={() => setView('landing')}
+              className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer"
+            >
+              <div className="w-10 h-10 bg-cyan-500 rounded-xl flex items-center justify-center text-black shadow-[0_0_20px_rgba(6,182,212,0.5)]">
+                <Zap size={22} fill="currentColor" />
+              </div>
+              <span className="text-xl font-bold tracking-tight">AppifyNow</span>
+            </button>
+            <Button 
+              variant="ghost" 
+              onClick={() => setView('dashboard')}
+              className="text-slate-400 hover:text-white flex items-center gap-2"
+            >
+              <ArrowLeft size={16} /> Back to Dashboard
+            </Button>
+          </div>
+        </nav>
+
+        <div className="pt-32 pb-20">
+          <div className="container mx-auto px-6 max-w-4xl">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              className="w-full bg-[#0a0a0a] border border-cyan-500/30 rounded-[2.5rem] overflow-hidden shadow-[0_0_100px_rgba(6,182,212,0.2)]"
+            >
+              <div className="bg-gradient-to-r from-cyan-500/10 to-blue-600/10 p-8 md:p-12 border-b border-white/5">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                  <div>
+                    <h2 className="text-4xl font-black tracking-tight mb-2 flex items-center gap-3">
+                      <Rocket className="text-cyan-400" size={40} />
+                      Pro Checkout
+                    </h2>
+                    <p className="text-slate-400 text-lg">Complete your payment to unlock premium access.</p>
+                  </div>
+                  <div className="bg-black/40 backdrop-blur-md p-6 rounded-3xl border border-white/10 text-center min-w-[180px]">
+                    <p className="text-xs text-slate-500 uppercase font-bold tracking-widest mb-1">Total Due</p>
+                    <p className="text-4xl font-black text-cyan-400">₹{selectedPlan === 'monthly' ? '199.00' : '299.00'}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="p-8 md:p-12 space-y-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                  <div className="space-y-6">
+                    <h4 className="font-bold text-sm uppercase tracking-widest text-slate-500">1. Select Plan</h4>
+                    <div className="space-y-3">
+                      <button 
+                        onClick={() => setSelectedPlan('monthly')}
+                        className={`w-full p-6 border rounded-2xl flex items-center justify-between text-lg font-bold transition-all ${
+                          selectedPlan === 'monthly' 
+                          ? 'bg-cyan-500/10 border-cyan-500 text-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.1)]' 
+                          : 'bg-white/5 border-white/5 text-slate-400 hover:border-white/10'
+                        }`}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className={`w-3 h-3 rounded-full ${selectedPlan === 'monthly' ? 'bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,1)]' : 'bg-slate-700'}`} />
+                          1 Month Pro
+                        </div>
+                        <span>₹199</span>
+                      </button>
+                      <button 
+                        onClick={() => setSelectedPlan('extended')}
+                        className={`w-full p-6 border rounded-2xl flex items-center justify-between text-lg font-bold transition-all ${
+                          selectedPlan === 'extended' 
+                          ? 'bg-cyan-500/10 border-cyan-500 text-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.1)]' 
+                          : 'bg-white/5 border-white/5 text-slate-400 hover:border-white/10'
+                        }`}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className={`w-3 h-3 rounded-full ${selectedPlan === 'extended' ? 'bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,1)]' : 'bg-slate-700'}`} />
+                          2 Months Pro
+                        </div>
+                        <span>₹299</span>
+                      </button>
+                    </div>
+
+                    <h4 className="font-bold text-sm uppercase tracking-widest text-slate-500 pt-4">2. Payment Method</h4>
+                    <div className="space-y-3">
+                      <button className="w-full p-6 bg-white/5 border border-cyan-500/50 rounded-2xl flex items-center gap-4 text-lg font-bold">
+                        <div className="w-3 h-3 rounded-full bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,1)]" />
+                        Credit / Debit Card
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <h4 className="font-bold text-sm uppercase tracking-widest text-slate-500">3. Payment Details</h4>
+                    <div className="p-8 bg-white/5 border border-white/10 rounded-3xl space-y-8">
+                      <div className="grid grid-cols-2 gap-6">
+                        <div className="col-span-2 space-y-3">
+                          <Label className="text-sm">Card Number</Label>
+                          <Input 
+                            placeholder="0000 0000 0000 0000" 
+                            className="bg-black border-white/10 h-14 text-lg" 
+                            value={cardNumber}
+                            onChange={(e) => setCardNumber(e.target.value)}
+                          />
+                        </div>
+                        <div className="space-y-3">
+                          <Label className="text-sm">Expiry</Label>
+                          <Input 
+                            placeholder="MM/YY" 
+                            className="bg-black border-white/10 h-14 text-lg" 
+                            value={expiry}
+                            onChange={(e) => setExpiry(e.target.value)}
+                          />
+                        </div>
+                        <div className="space-y-3">
+                          <Label className="text-sm">CVC</Label>
+                          <Input 
+                            placeholder="***" 
+                            className="bg-black border-white/10 h-14 text-lg" 
+                            value={cvc}
+                            onChange={(e) => setCvc(e.target.value)}
+                          />
+                        </div>
+                        <div className="col-span-2 space-y-3 pt-4 border-t border-white/5">
+                          <Label className="text-sm text-cyan-400 font-bold">Secret Activation Code</Label>
+                          <Input 
+                            placeholder="Enter 5-digit code" 
+                            className="bg-cyan-500/5 border-cyan-500/30 h-14 text-lg text-cyan-400 placeholder:text-cyan-900" 
+                            value={secretCode}
+                            onChange={(e) => setSecretCode(e.target.value)}
+                          />
+                          <p className="text-[10px] text-slate-500 uppercase tracking-widest">Enter "13908" to bypass payment for testing</p>
+                        </div>
+                      </div>
+                      
+                      <div className="pt-6 border-t border-white/5">
+                        <Button 
+                          onClick={handleUpgrade}
+                          disabled={isUpgrading}
+                          className="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-black h-16 text-xl rounded-2xl shadow-[0_0_30px_rgba(6,182,212,0.4)] transition-all active:scale-95"
+                        >
+                          {isUpgrading ? <Loader2 className="animate-spin" /> : 'Pay & Activate Now'}
+                        </Button>
+                        <p className="text-[10px] text-slate-500 text-center mt-4 uppercase tracking-widest">
+                          Secure 256-bit SSL Encrypted Payment
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <footer className="py-20 border-t border-white/5">
+          <div className="container mx-auto px-6">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center text-black">
+                  <Zap size={18} fill="currentColor" />
+                </div>
+                <span className="text-lg font-bold tracking-tight">AppifyNow</span>
+              </div>
+              <p className="text-sm text-slate-600">
+                © 2026 AppifyNow. Secure Payment Guaranteed.
+              </p>
+            </div>
+          </div>
+        </footer>
       </div>
     );
   }
@@ -1565,7 +1777,7 @@ export default function App() {
       </section>
 
       {/* Pricing */}
-      <section className="py-32">
+      <section id="pricing" className="py-32">
         <div className="container mx-auto px-6">
           <div className="text-center mb-20">
             <h2 className="text-4xl md:text-5xl font-black mb-6">Simple, transparent pricing</h2>

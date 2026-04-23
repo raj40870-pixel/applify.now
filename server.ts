@@ -74,7 +74,11 @@ app.use((req, res, next) => {
 console.log("Attempting to connect to MongoDB...");
 
 const logConnectionError = (err: any, uri: string) => {
-  console.error(`MongoDB connection error for ${uri}:`, err);
+  if (uri === DEFAULT_LOCAL_MONGODB_URI) {
+    console.warn(`Local MongoDB is not running (${uri})`);
+    return;
+  }
+  console.error(`MongoDB connection error for ${uri}:`, err.message || err);
   if (uri.startsWith("mongodb+srv://")) {
     console.log("Current MongoDB URI (masked):", uri.replace(/:([^@]+)@/, ":****@"));
   }
@@ -94,7 +98,7 @@ const connectMongo = async () => {
   }
 
   try {
-    await mongoose.connect(initialUri, { serverSelectionTimeoutMS: 5000 });
+    await mongoose.connect(initialUri, { serverSelectionTimeoutMS: 2000 });
     console.log("Successfully connected to MongoDB");
     return;
   } catch (err) {
@@ -103,7 +107,7 @@ const connectMongo = async () => {
     if (isDev && initialUri !== DEFAULT_LOCAL_MONGODB_URI) {
       console.warn("Primary MongoDB URI failed. Attempting local development MongoDB fallback...");
       try {
-        await mongoose.connect(DEFAULT_LOCAL_MONGODB_URI, { serverSelectionTimeoutMS: 5000 });
+        await mongoose.connect(DEFAULT_LOCAL_MONGODB_URI, { serverSelectionTimeoutMS: 2000 });
         console.log("Successfully connected to local MongoDB fallback");
         return;
       } catch (localErr) {
@@ -111,13 +115,24 @@ const connectMongo = async () => {
       }
     }
 
-    console.warn("MongoDB connection is not available. API routes will return 503 until a database is reachable.");
+    console.warn("MongoDB connection is not available. Attempting to start in-memory MongoDB for Demo Mode...");
+    try {
+      const { MongoMemoryServer } = await import('mongodb-memory-server');
+      const mongoServer = await MongoMemoryServer.create();
+      const mongoUri = mongoServer.getUri();
+      await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 5000 });
+      console.log(`Successfully connected to in-memory MongoDB at ${mongoUri}`);
+    } catch (memErr) {
+      console.error("Failed to start in-memory MongoDB:", memErr);
+      console.warn("MongoDB connection is completely unavailable. API routes will return 503.");
+    }
   }
 };
 
 connectMongo();
 
 mongoose.connection.on("error", err => {
+  if (err.message && err.message.includes("ECONNREFUSED 127.0.0.1:27017")) return;
   console.error("MongoDB connection event error:", err);
 });
 

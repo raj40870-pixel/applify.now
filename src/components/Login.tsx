@@ -18,6 +18,18 @@ export const Login: React.FC<LoginProps> = ({ onBack }) => {
   const [errorType, setErrorType] = useState<'none' | 'google_only' | 'not_found'>('none');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { login } = useAuth();
+  
+  const TEMP_EMAIL_DOMAINS = [
+    'yopmail.com', 'tempmail.com', 'guerrillamail.com', '10minutemail.com', 
+    'mailinator.com', 'dispostable.com', 'getnada.com', 'sharklasers.com',
+    'temp-mail.org', 'fake-mail.com', 'burnermail.io'
+  ];
+
+  const isRealEmail = (email: string) => {
+    const domain = email.split('@')[1];
+    if (!domain) return false;
+    return !TEMP_EMAIL_DOMAINS.includes(domain.toLowerCase());
+  };
 
   // Reset error type and message when switching between login/signup
   React.useEffect(() => {
@@ -74,6 +86,14 @@ export const Login: React.FC<LoginProps> = ({ onBack }) => {
 
     try {
       const normalizedEmail = email.toLowerCase().trim();
+      
+      if (!isLogin && !isRealEmail(normalizedEmail)) {
+        setIsLoading(false);
+        setErrorMessage('Temporary or fake emails are not allowed. Please use a real email address.');
+        toast.error('Temporary emails blocked.');
+        return;
+      }
+
       const payload = { email: normalizedEmail, password };
       
       const response = isLogin 
@@ -88,8 +108,11 @@ export const Login: React.FC<LoginProps> = ({ onBack }) => {
       const message = error.response?.data?.message || error.message || 'Authentication failed';
       if (message.includes('Google')) {
         setErrorType('google_only');
-      } else if (message.includes('Account not found')) {
+      } else if (message.includes('not found') || message.includes('exist') || error.response?.status === 404) {
         setErrorType('not_found');
+        setErrorMessage('Email ID not exists. Please create your account.');
+        toast.error('Email not registered');
+        return;
       }
       setErrorMessage(message);
       toast.error(message);
@@ -181,7 +204,7 @@ export const Login: React.FC<LoginProps> = ({ onBack }) => {
                 className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-4"
               >
                 <p className="text-sm text-red-400 font-medium mb-3">
-                  Account not found. Would you like to create a new account?
+                  Email ID not exists. Please create your account.
                 </p>
                 <Button 
                   type="button"
