@@ -13,5 +13,11 @@ workflows:
         script: |
           cd flutter_app_template
           flutter build ios --release --no-codesign
+          
+          # Convert .app to .ipa for direct download
+          cd build/ios/iphoneos
+          mkdir -p Payload
+          cp -r Runner.app Payload/
+          zip -r -q app.ipa Payload
     artifacts:
-      - flutter_app_template/build/ios/iphoneos/Runner.app
+      - flutter_app_template/build/ios/iphoneos/app.ipa
