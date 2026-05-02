@@ -480,18 +480,22 @@ export default config;`;
 });
 
 
-app.post("/api/build-ios", async (req, res) => {
+const CODEMAGIC_TOKEN = process.env.CODEMAGIC_TOKEN;
+const APP_ID = process.env.APP_ID;
+
+// ── iOS Build Start ──
+app.post('/api/build-ios', async (req, res) => {
   try {
     const response = await axios.post(
       'https://api.codemagic.io/builds',
       {
-        appId: process.env.APP_ID,
+        appId: APP_ID,
         workflowId: 'ios-workflow',
         branch: 'main'
       },
       {
         headers: {
-          'x-auth-token': process.env.CODEMAGIC_TOKEN
+          'x-auth-token': CODEMAGIC_TOKEN!
         }
       }
     );
@@ -499,29 +503,43 @@ app.post("/api/build-ios", async (req, res) => {
       success: true,
       buildId: response.data.buildId
     });
-  } catch (error: any) {
-    console.error("Codemagic iOS Build Error:", error?.response?.data || error.message);
-    res.status(500).json({ success: false, message: "iOS Build failed", error: error.message });
+  } catch(err: any) {
+    res.json({ success: false, error: err.message });
   }
 });
 
-app.get('/api/ios-status/:id', async (req, res) => {
+// ── iOS Build Status ──
+app.get('/api/ios-status/:buildId', async (req, res) => {
   try {
     const response = await axios.get(
-      `https://api.codemagic.io/builds/${req.params.id}`,
-      { headers: { 'x-auth-token': process.env.CODEMAGIC_TOKEN } }
+      `https://api.codemagic.io/builds/${req.params.buildId}`,
+      {
+        headers: { 'x-auth-token': CODEMAGIC_TOKEN! }
+      }
     );
-    
     const build = response.data.build;
-    const artifact = build.artefacts?.find((a: any) => a.name.includes('Runner') || a.name.includes('.ipa') || a.name.includes('.app'));
-    
+    const artifact = build.artefacts?.find(
+      (a: any) => a.name.includes('Runner')
+    );
     res.json({
       status: build.status,
-      progress: build.status === 'building' ? 50 : (build.status === 'finished' ? 100 : 10),
       downloadUrl: artifact?.url || null
     });
-  } catch (error: any) {
-    res.status(500).json({ error: "Failed to fetch status" });
+  } catch(err: any) {
+    res.json({ error: err.message });
+  }
+});
+
+// ── iOS ZIP Direct Download ──
+app.get('/download/ios', (req, res) => {
+  const file = path.join(
+    __dirname,
+    '../downloads/Runner.app.zip'
+  );
+  if(fs.existsSync(file)) {
+    res.download(file, 'iOS-App.zip');
+  } else {
+    res.json({ error: 'File not found' });
   }
 });
 

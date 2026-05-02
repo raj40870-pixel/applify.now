@@ -82,7 +82,6 @@ if ($mode -eq "release") {
 Pop-Location
 
 $apkDir = "android\app\build\outputs\apk\$mode"
-$apkFile = if ($mode -eq "release") { "app-release-unsigned.apk" } else { "app-debug.apk" }
 # Actually release might be named differently depending on signing config, checking for any .apk in output
 $apkPath = Get-ChildItem -Path $apkDir -Filter "*.apk" -Recurse | Select-Object -ExpandProperty FullName -First 1
 
