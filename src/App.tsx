@@ -571,24 +571,35 @@ export default function App() {
       if (type === 'ipa') {
         setDownloadTarget('ipa');
         setBuildLogs([
-          "Initializing iOS Build Environment...",
-          "Resolved Swift package dependencies...",
-          "Checking certificate with Apple ID...",
-          "Compiling Swift source files...",
-          "Linking AppifyNow-iOS binary...",
-          "Generating provisioning profile...",
-          "Signing with distribution certificate...",
-          "Creating IPA archive..."
+          "Sending request to Codemagic iOS Cloud...",
+          "Queuing iOS Free Build..."
         ]);
 
-        // Actual API call for the placeholder/bridge IPA
-        const response = await buildApi.downloadIOS(payload);
-        setBuildProgress(100);
-        setBuildComplete(true);
+        const response = await buildApi.buildIOS({ url: targetUrl });
+        const buildId = response.data.buildId;
 
-        setBuildLogs(prev => [...prev, "iOS Build Successful!", "IPA Manifest generated."]);
-        triggerFileDownload(response.data, `${appName.toLowerCase().replace(/\s+/g, '-')}-ios.txt`);
-        toast.success('iOS Build Ready! Follow the instructions in the file.');
+        let isDone = false;
+        while (!isDone) {
+          await new Promise(resolve => setTimeout(resolve, 3000));
+          const statusRes = await buildApi.getIOSStatus(buildId);
+          const { status, progress } = statusRes.data;
+          
+          setBuildProgress(progress);
+          setBuildLogs(prev => {
+            const clean = prev.filter(l => !l.startsWith('Codemagic Status:'));
+            return [...clean, `Codemagic Status: ${status} (${progress}%)`];
+          });
+
+          if (status === 'finished') {
+            isDone = true;
+            setBuildComplete(true);
+            setBuildLogs(prev => [...prev, "✅ iOS Build Successful! Check your Codemagic dashboard to download the IPA."]);
+            toast.success('iOS Build Finished! IPA ready on Codemagic.');
+          } else if (status === 'failed' || status === 'canceled') {
+            isDone = true;
+            throw new Error(`iOS Build ${status}`);
+          }
+        }
       } else {
         // Android / Both logic
         setDownloadTarget('apk');
@@ -1129,10 +1140,11 @@ export default function App() {
                           Download Android APK
                         </Button>
                         <Button
-                          disabled={true}
-                          className="h-16 bg-white/5 text-slate-500 font-black text-lg rounded-full border border-white/10 cursor-not-allowed"
+                          onClick={() => handleDownload('ipa', 'release')}
+                          disabled={isBuilding}
+                          className="h-16 bg-white/5 text-slate-200 font-black text-lg rounded-full border border-white/10 hover:bg-white/10 transition-colors"
                         >
-                          iOS Support Coming Soon
+                          Build iOS App
                         </Button>
                       </div>
                     </div>
@@ -1282,10 +1294,10 @@ export default function App() {
                             </Button>
                             <Button
                               variant="outline"
-                              disabled={true}
-                              className="bg-[#0a0a0a] border-white/5 text-slate-600 text-[10px] font-black uppercase h-11 rounded-xl cursor-not-allowed"
+                              onClick={() => handleDownload('ipa', 'release')}
+                              className="bg-[#0a0a0a] border-white/5 hover:border-blue-500/30 hover:text-cyan-400 text-[10px] font-black uppercase h-11 rounded-xl"
                             >
-                              <Apple size={14} className="mr-2" /> iOS Locked
+                              <Apple size={14} className="mr-2" /> Build iOS
                             </Button>
                             <Button
                               variant="outline"

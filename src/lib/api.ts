@@ -62,8 +62,8 @@ export const buildApi = {
   downloadFile: (buildId: string) => api.get(`/api/download/${buildId}`, { responseType: 'blob' }),
   downloadAndroid: (data: any) =>
     api.post('/api/build/android', data, { responseType: 'blob' }),
-  downloadIOS: (data: any) =>
-    api.post('/api/build/ios', data, { responseType: 'blob' }),
+  buildIOS: (data: any) => api.post('/api/build-ios', data),
+  getIOSStatus: (buildId: string) => api.get(`/api/ios-status/${buildId}`),
 };
 
 export default api;

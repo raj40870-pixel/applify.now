@@ -480,11 +480,44 @@ export default config;`;
 });
 
 
-app.post("/api/build/ios", async (_req, res) => {
-  const testflightUrl = process.env.TESTFLIGHT_URL || "https://testflight.apple.com/";
-  const placeholderIpaPath = path.join(process.cwd(), "ios-download-link.txt");
-  fs.writeFileSync(placeholderIpaPath, `Open this link to continue iOS install:\n${testflightUrl}\n`);
-  res.download(placeholderIpaPath, "ios-download-link.txt");
+app.post("/api/build-ios", async (req, res) => {
+  try {
+    const response = await axios.post(
+      'https://api.codemagic.io/builds',
+      {
+        appId: process.env.APP_ID,
+        workflowId: 'ios-workflow',
+        branch: 'main'
+      },
+      {
+        headers: {
+          'x-auth-token': process.env.CODEMAGIC_TOKEN
+        }
+      }
+    );
+    res.json({
+      success: true,
+      buildId: response.data.buildId
+    });
+  } catch (error: any) {
+    console.error("Codemagic iOS Build Error:", error?.response?.data || error.message);
+    res.status(500).json({ success: false, message: "iOS Build failed", error: error.message });
+  }
+});
+
+app.get('/api/ios-status/:id', async (req, res) => {
+  try {
+    const response = await axios.get(
+      `https://api.codemagic.io/builds/${req.params.id}`,
+      { headers: { 'x-auth-token': process.env.CODEMAGIC_TOKEN } }
+    );
+    res.json({
+      status: response.data.build.status, // Depending on Codemagic API, it might be response.data.build.status
+      progress: response.data.build.status === 'building' ? 50 : (response.data.build.status === 'finished' ? 100 : 10)
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: "Failed to fetch status" });
+  }
 });
 
 // Logo Upload to S3
