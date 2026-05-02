@@ -511,9 +511,14 @@ app.get('/api/ios-status/:id', async (req, res) => {
       `https://api.codemagic.io/builds/${req.params.id}`,
       { headers: { 'x-auth-token': process.env.CODEMAGIC_TOKEN } }
     );
+    
+    const build = response.data.build;
+    const artifact = build.artefacts?.find((a: any) => a.name.includes('Runner') || a.name.includes('.ipa') || a.name.includes('.app'));
+    
     res.json({
-      status: response.data.build.status, // Depending on Codemagic API, it might be response.data.build.status
-      progress: response.data.build.status === 'building' ? 50 : (response.data.build.status === 'finished' ? 100 : 10)
+      status: build.status,
+      progress: build.status === 'building' ? 50 : (build.status === 'finished' ? 100 : 10),
+      downloadUrl: artifact?.url || null
     });
   } catch (error: any) {
     res.status(500).json({ error: "Failed to fetch status" });

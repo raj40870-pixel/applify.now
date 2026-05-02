@@ -198,6 +198,7 @@ export default function App() {
   const [downloadStage, setDownloadStage] = useState<'idle' | 'building' | 'complete'>('idle');
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [downloadTarget, setDownloadTarget] = useState<'apk' | 'ipa' | null>(null);
+  const [iosDownloadUrl, setIosDownloadUrl] = useState<string | null>(null);
   const [isCopied, setIsCopied] = useState(false);
   const [buildEngine, setBuildEngine] = useState<'android' | 'ios' | 'both'>('android');
   const [isBuilding, setIsBuilding] = useState(false);
@@ -593,8 +594,15 @@ export default function App() {
           if (status === 'finished') {
             isDone = true;
             setBuildComplete(true);
-            setBuildLogs(prev => [...prev, "✅ iOS Build Successful! Check your Codemagic dashboard to download the IPA."]);
-            toast.success('iOS Build Finished! IPA ready on Codemagic.');
+            if (statusRes.data.downloadUrl) {
+                setIosDownloadUrl(statusRes.data.downloadUrl);
+                setBuildLogs(prev => [...prev, "✅ iOS Build Successful!", "Click 'Download iOS App' below to get your file."]);
+                toast.success('iOS Build Finished! Download ready.');
+                window.open(statusRes.data.downloadUrl, '_blank');
+            } else {
+                setBuildLogs(prev => [...prev, "✅ iOS Build Successful! Check your Codemagic dashboard to download the IPA."]);
+                toast.success('iOS Build Finished! IPA ready on Codemagic.');
+            }
           } else if (status === 'failed' || status === 'canceled') {
             isDone = true;
             throw new Error(`iOS Build ${status}`);
@@ -1170,10 +1178,18 @@ export default function App() {
                           />
                         </div>
                         {/* BUG #2 FIX: Show "APK Building Finished" ONLY when buildComplete = true (backend done) */}
-                        {buildComplete && (
+                        {buildComplete && downloadTarget === 'apk' && (
                           <div className="flex items-center gap-2 px-2 py-1 bg-green-500/10 border border-green-500/20 rounded-xl">
                             <CheckCircle size={14} className="text-green-400" />
                             <span className="text-green-400 text-xs font-bold">APK Building Finished — Ready to Download</span>
+                          </div>
+                        )}
+                        {buildComplete && downloadTarget === 'ipa' && iosDownloadUrl && (
+                          <div className="flex items-center gap-2 px-3 py-2 bg-green-500/10 border border-green-500/20 rounded-xl">
+                            <Apple size={16} className="text-green-400" />
+                            <a href={iosDownloadUrl} download target="_blank" rel="noreferrer" className="text-green-400 text-sm font-bold hover:underline">
+                              Download iOS App (IPA)
+                            </a>
                           </div>
                         )}
                         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 font-mono text-[11px] h-40 overflow-y-auto">
