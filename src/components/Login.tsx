@@ -22,7 +22,28 @@ export const Login: React.FC<LoginProps> = ({ onBack }) => {
   const TEMP_EMAIL_DOMAINS = [
     'yopmail.com', 'tempmail.com', 'guerrillamail.com', '10minutemail.com', 
     'mailinator.com', 'dispostable.com', 'getnada.com', 'sharklasers.com',
-    'temp-mail.org', 'fake-mail.com', 'burnermail.io'
+    'temp-mail.org', 'fake-mail.com', 'burnermail.io', 'trashmail.com',
+    'tempmail.net', 'tempmailaddress.com', 'mailtemp.net', 'tempmail.com.br',
+    'temp-mail.ru', 'tempmail.id', 'tempmail.tk', 'tempmail.de',
+    'fake-mail.org', 'fmail.com', 'temp-mail.io', 'mail-temp.com',
+    'mytemp.email', 'tempemail.io', 'mail-fake.com', 'fake-mail.net',
+    'tempmail.fr', 'tempmail.es', 'tempmail.it', 'tempmail.be',
+    'mail4u.info', 'mailcatch.com', 'mailnull.com', 'mohmal.com',
+    'guerrillamail.net', 'guerrillamail.org', 'guerrillamail.biz', 'guerrillamailblock.com',
+    'pokemail.net', 'spam4.me', 'grr.la', 'guerrillamail.de',
+    'temp-mail.info', 'temp-mail.li', 'temp-mail.cc', 'temp-mail.name',
+    'crazymailing.com', 'get24.org', 'jesuismort.com', 'armyspy.com',
+    'cuvox.de', 'dayrep.com', 'einrot.com', 'fleckens.hu',
+    'gustr.com', 'jourrapide.com', 'rhyta.com', 'superrito.com',
+    'teleworm.us', 'trbvm.com', 'vmani.com', 'zomro.com',
+    'mail-temp.org', 'temp-mail.be', 'temp-mail.fr', 'temp-mail.it',
+    'temp-mail.ch', 'temp-mail.es', 'temp-mail.us', 'temp-mail.net.br',
+    'temp-mail.org.ua', 'temp-mail.com.ua', 'tempmail.name', 'tempmail.info',
+    'tempmail.li', 'tempmail.cc', 'tempmail.net.ru', 'tempmail.org.ru',
+    'anonbox.net', 'maildrop.cc', 'mintemail.com', 'notsharingmy.info',
+    'ourtrashmail.com', 'spambox.us', 'tempemail.net', 'tempinbox.com',
+    'throwawaymail.com', 'trashmail.net', 'trv.la', 'spamgourmet.com',
+    'dfgh.com', 'qwerty.com', 'asdf.com', 'test.com', 'example.com'
   ];
 
   const isRealEmail = (email: string) => {
@@ -60,15 +81,37 @@ export const Login: React.FC<LoginProps> = ({ onBack }) => {
       const response = await authApi.getGoogleUrl();
       const { url } = response.data;
       
+      // Capacitor native app (iOS/Android via Capacitor)
       if ((window as any).Capacitor?.isNativePlatform()) {
         const { Browser } = await import('@capacitor/browser');
         await Browser.open({ url });
+        return;
+      }
+
+      // Detect Flutter WebView / Android WebView:
+      // In a WebView, window.open() either gets blocked or silently fails.
+      // We detect this by checking if we are NOT a real popup-capable desktop browser.
+      const isWebView = 
+        // Android WebView UA contains "wv"
+        /wv/.test(navigator.userAgent) ||
+        // Flutter InAppWebView
+        /Flutter/.test(navigator.userAgent) ||
+        // No screen dimensions = embedded browser
+        window.outerWidth === 0 ||
+        // User agent doesn't contain real Chrome (desktop) indicators
+        (!/Chrome/.test(navigator.userAgent) && !/Safari/.test(navigator.userAgent));
+
+      if (isWebView) {
+        // Direct navigation: WebView navigates to Google OAuth.
+        // After login, our server callback redirects back to this site
+        // with ?token=...&user=... and AuthContext picks it up.
+        window.location.href = url;
       } else {
+        // Desktop browser: open popup window
         const width = 500;
         const height = 600;
         const left = window.screenX + (window.outerWidth - width) / 2;
         const top = window.screenY + (window.outerHeight - height) / 2;
-        
         window.open(
           url,
           'google_login',

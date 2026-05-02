@@ -53,9 +53,13 @@ export const authApi = {
 export const projectsApi = {
   getAll: () => api.get('/api/projects'),
   create: (data: any) => api.post('/api/projects', data),
+  uploadLogo: (data: any) => api.post('/api/upload-logo', data),
 };
 
 export const buildApi = {
+  startBuild: (data: any) => api.post('/api/build', data),
+  getStatus: (buildId: string) => api.get(`/api/status/${buildId}`),
+  downloadFile: (buildId: string) => api.get(`/api/download/${buildId}`, { responseType: 'blob' }),
   downloadAndroid: (data: any) =>
     api.post('/api/build/android', data, { responseType: 'blob' }),
   downloadIOS: (data: any) =>

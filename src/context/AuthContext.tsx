@@ -34,6 +34,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const checkToken = () => {
+      // 1. Check URL parameters (for mobile/webview redirects)
+      const params = new URLSearchParams(window.location.search);
+      const urlToken = params.get('token');
+      const urlUser = params.get('user');
+
+      if (urlToken && urlUser) {
+        try {
+          const userObj = JSON.parse(urlUser);
+          login(urlToken, userObj);
+          // Clean up URL
+          window.history.replaceState({}, document.title, window.location.pathname);
+          setIsLoading(false);
+          return;
+        } catch (e) {
+          console.error('Failed to parse user from URL', e);
+        }
+      }
+
+      // 2. Check LocalStorage
       const savedToken = localStorage.getItem('auth_token');
       const savedUser = localStorage.getItem('auth_user');
       

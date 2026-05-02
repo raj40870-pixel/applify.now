@@ -21,8 +21,9 @@ export default defineConfig(({mode}) => {
       // Do not modify—file watching is disabled to prevent flickering during agent edits.
       hmr: process.env.DISABLE_HMR !== 'true',
       watch: {
-        ignored: ['**/android/**', '**/ios/**']
+        ignored: ['**/android/**', '**/ios/**', '**/flutter_app_template/**', '**/scripts/**', '**/dist/**', '**/*.apk', '**/capacitor.config.ts']
       }
     },
+    clearScreen: false,
   };
 });

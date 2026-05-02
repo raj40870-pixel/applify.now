@@ -1,0 +1,83 @@
+name: AppifyNow Cloud Build (APK + iOS)
+
+on:
+  workflow_dispatch:
+    inputs:
+      jobId:
+        description: 'Unique Job ID for tracking'
+        required: true
+      url:
+        description: 'Website URL to convert'
+        required: true
+      appName:
+        description: 'Name of the App'
+        required: true
+      packageName:
+        description: 'App Package Name (e.g. com.appify.demo)'
+        required: true
+jobs:
+  build-android-and-ios:
+    # We must use macOS runner to build BOTH Android and iOS
+    runs-on: macos-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout Template Code
+        uses: actions/checkout@v3
+
+      - name: Setup Java (For Android)
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.0'
+          channel: 'stable'
+
+      - name: Inject User Inputs (URL & App Name)
+        run: |
+          # Inject URL into Flutter Dart code
+          sed -i '' "s|PLACEHOLDER_URL|${{ github.event.inputs.url }}|g" lib/main.dart
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      # ================= ANDROID BUILD =================
+      - name: Build Android APK
+        run: flutter build apk --release
+        
+      - name: Upload Android APK
+        id: upload-apk
+        run: |
+          APK_LINK=$(curl -s --upload-file build/app/outputs/flutter-apk/app-release.apk https://transfer.sh/${{ github.event.inputs.appName }}-android.apk)
+          echo "APK_LINK=$APK_LINK" >> $GITHUB_ENV
+
+      # ================= iOS BUILD =================
+      # NOTE: Without Apple Developer Certificates, we can only build an unsigned payload/app, NOT a deployable IPA.
+      - name: Build iOS (No Sign)
+        run: flutter build ios --release --no-codesign
+        
+      - name: Compress iOS Build into ZIP
+        run: |
+          cd build/ios/iphoneos
+          zip -r ios-build.zip Runner.app
+          
+      - name: Upload iOS ZIP
+        id: upload-ios
+        run: |
+          IOS_LINK=$(curl -s --upload-file build/ios/iphoneos/ios-build.zip https://transfer.sh/${{ github.event.inputs.appName }}-ios.zip)
+          echo "IOS_LINK=$IOS_LINK" >> $GITHUB_ENV
+
+      # ================= NOTIFY BACKEND =================
+      - name: Notify Node.js Backend
+        run: |
+          curl -X POST https://YOUR_NODE_SERVER_URL.com/api/webhook/complete \
+          -H "Content-Type: application/json" \
+          -d '{
+            "jobId": "${{ github.event.inputs.jobId }}",
+            "status": "completed",
+            "downloadLink": "Android APK: ${{ env.APK_LINK }} | iOS ZIP: ${{ env.IOS_LINK }}"
+          }'

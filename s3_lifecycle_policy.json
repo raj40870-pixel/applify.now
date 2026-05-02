@@ -1,0 +1,14 @@
+{
+    "Rules": [
+        {
+            "ID": "DeleteLogosAfter30Days",
+            "Filter": {
+                "Prefix": "logos/"
+            },
+            "Status": "Enabled",
+            "Expiration": {
+                "Days": 30
+            }
+        }
+    ]
+}
